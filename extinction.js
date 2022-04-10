@@ -1,19 +1,21 @@
 const Discord = require("discord.js");
 const bot = new Discord.Client();
+const cfg = require("config.json");
 const fetch = require("node-fetch");
 const fs = require("fs");
 const schedule = require('node-schedule');
 const { privateEncrypt } = require("crypto");
 
-const bot_token = '';
+const bot_token = cfg.token;
 
 bot.login(bot_token);
 
-const server_id = '';
-const admin_id = '';
-const channel_id = '';
+const bot_prefix = cfg.prefix;
+const server_id = cfg.serverID;
+const admin_id = cfg.adminID;
+const channel_id = cfg.channelID;
 
-const bot_author = "Offshorp#0001"
+const bot_author = "Yùmi#0001"
 
 function print(message) {
     return console.log(`> ${message}`);
@@ -46,12 +48,12 @@ var weaponsAPI = [];
 function getWeaponsList() {
     weapons_list = JSON.parse(fs.readFileSync(`./weaponslist.json`));
 
-    print('Liste des armes récupérées');
+    print('List of weapons recovered');
 };
 
 bot.on('ready', function() {
-    print("Bot Lancé");
-    bot.user.setActivity(`le marché`, {type: 'WATCHING'});
+    print("Bot ready");
+    bot.user.setActivity(`the market`, {type: 'WATCHING'});
     
     setTimeout(() => {
         getWeaponsList();
@@ -121,14 +123,14 @@ bot.on('ready', function() {
                 };
             };
 
-            print('Marché vérifié');
+            print('Market checked');
         };
     });
 });
 
 bot.on('message', async message => {
 
-    if(message.content.startsWith(`!market`)) {
+    if(message.content.startsWith(`${bot_prefix}market`)) {
 
         message.delete();
 
@@ -165,13 +167,13 @@ bot.on('message', async message => {
 
             getWeaponsList();
 
-            message.reply(`vous avez ajouté l'arme ${weaponName} (ID: ${weaponID}) au prix de $${weaponPrice}.`).then((msg) => {
+            message.reply(`you added ${weaponName} (ID: ${weaponID}) with price $${weaponPrice}.`).then((msg) => {
                 setTimeout(() => {
                     msg.delete();
                 }, 5000);
             });
 
-            print(`Arme ${weaponName} (ID: ${weaponID}) ajoutée à la liste`);
+            print(`Weapon ${weaponName} (ID: ${weaponID}) is added to the list`);
 
         }else if(parameter === "edit"){
 
@@ -184,13 +186,13 @@ bot.on('message', async message => {
                     fs.writeFileSync(`./weaponslist.json`, JSON.stringify(weapons_list));
                     getWeaponsList();
 
-                    message.reply(`vous avez modifié l'arme ${weaponName} (ID: ${weaponID}) au prix de $${weaponPrice}.`).then((msg) => {
+                    message.reply(`you edit ${weaponName} (ID: ${weaponID}) with price $${weaponPrice}.`).then((msg) => {
                         setTimeout(() => {
                             msg.delete();
                         }, 5000);
                     });
 
-                    print(`Arme ${weaponName} (ID: ${weaponID}) modifiée`);
+                    print(`Weapon ${weaponName} (ID: ${weaponID}) is edited`);
                 };
             };
 
@@ -213,13 +215,13 @@ bot.on('message', async message => {
                 };
             };
 
-            message.reply(`vous avez supprimé l'arme ${weaponName} (ID: ${weaponID}).`).then((msg) => {
+            message.reply(`you delete ${weaponName} (ID: ${weaponID}).`).then((msg) => {
                 setTimeout(() => {
                     msg.delete();
                 }, 5000);
             });
 
-            print(`Arme ${weaponName} (ID: ${weaponID}) supprimée de la liste`);
+            print(`Weapon ${weaponName} (ID: ${weaponID}) is deleted from the list`);
 
         }else if(parameter === "view"){
 
@@ -234,20 +236,20 @@ bot.on('message', async message => {
 
             var stringid = viewids.toString().replace(",", "\n");
 
-            message.reply(`\n**__Liste des ID:__**\n\n${stringid}`).then((msg) => {
+            message.reply(`\n**__IDs List:__**\n\n${stringid}`).then((msg) => {
                 setTimeout(() => {
                     msg.delete();
                 }, 30000);
             });
             
         }else if(parameter === "help"){
-            message.reply(`la commande est **!market parameter weaponID weaponPrice weaponName APILink**\n\n**__Parameters List:__**\nadd / edit / remove / view\n\n**__Exemple:__**\n!market add weapon_musket 50000 Musket APILink\n!market edit weapon_musket 60000\n!market remove weapon_musket`).then((msg) => {
+            message.reply(`the command is **${bot_prefix}market parameter weaponID weaponPrice weaponName APILink**\n\n**__Parameters List:__**\nadd / edit / remove / view\n\n**__Exemple:__**\n${bot_prefix}market add weapon_musket 50000 Musket APILink\n${bot_prefix}market edit weapon_musket 60000\n${bot_prefix}market remove weapon_musket`).then((msg) => {
                 setTimeout(() => {
                     msg.delete();
                 }, 20000);
             });
         }else{
-            message.reply(`merci d'utiliser **!market help** pour savoir comment utiliser la commande.`).then((msg) => {
+            message.reply(`Use **!market help** to know how to use this command.`).then((msg) => {
                 setTimeout(() => {
                     msg.delete();
                 }, 5000);
